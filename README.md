@@ -1,6 +1,6 @@
 # Algorithms for Adaptive Seed Minimization
 
-Codes for the Trim, i.e., the adaptive algorithm for adaptive SM problem that provides expected approximation ratio. More details refer to paper: https://arxiv.org/abs/1907.09668.
+Codes for the Trim, i.e., the adaptive algorithm for the adaptive SM problem that provides expected approximation ratio. Please refer to paper: https://arxiv.org/abs/1907.09668 for details.
 
 
 
