@@ -40,7 +40,8 @@ void run_with_parameter(InfGraph &g, const Argument & arg)
 void Run(int argn, char **argv)
 {
     Argument arg;
-
+    unsigned int dataset_No=1;
+    std::vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
     arg.Q = 0.1;    
 	arg.batch = 1;	
 
@@ -52,14 +53,14 @@ void Run(int argn, char **argv)
             return ;
         }	
 
-		if (argv[i] == string("-dataset"))
-			arg.dataset = argv[i + 1];
+		if (argv[i] == string("-dataset_No"))
+			arg.dataset = dataset[stoi(argv[i + 1])];
 		if (argv[i] == string("-epsilon"))
 			arg.epsilon = atof(argv[i + 1]);
 		if (argv[i] == string("-Q"))
 			arg.Q = atof(argv[i + 1]);		
 		if (argv[i] == string("-model"))
-			arg.model = argv[i + 1];
+			arg.model = argv[i + 1]== "LT" ? "LT" : "IC";
 		if (argv[i] == string("-seedfile"))
 			arg.seedfile = argv[i + 1];
 		if (argv[i] == string("-batch"))
@@ -69,14 +70,14 @@ void Run(int argn, char **argv)
     }
     ASSERT(arg.dataset != "");
     ASSERT(arg.model == "IC" || arg.model == "LT");
-    arg.dataset = arg.dataset + "/";
-    string graph_file;
-    if (arg.model == "IC")
-        graph_file = arg.dataset + "graph_ic.inf";
-    else if (arg.model == "LT")
-        graph_file = arg.dataset + "graph_lt.inf";      
-    else
-        ASSERT(false);
+    
+    string graph_file = arg.dataset + "/";
+    // if (arg.model == "IC")
+    //     graph_file = arg.dataset + "graph_ic.inf";
+    // else if (arg.model == "LT")
+    //     graph_file = arg.dataset + "graph_lt.inf";      
+    // else
+    //     ASSERT(false);
     
     InfGraph g(arg.dataset, graph_file);        
 

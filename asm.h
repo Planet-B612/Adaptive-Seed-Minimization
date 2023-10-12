@@ -98,17 +98,18 @@ public:
 				active_node = 0;				
 				left_Q = arg.Q; //change the left_node as the quota
 				left_n = g.n;
-
+				
 				high_resolution_clock::time_point startTime = high_resolution_clock::now();				
 
 				while (active_node <  arg.Q )  //set the eta as 1;
  				{							
 					left_Q = arg.Q - active_node;
 					left_n = g.n - active_node;
-					
+					//cout<<"Left Q is "<<left_Q<<endl;
 					if (left_Q <= arg.batch)
 					{
 						g.RandBatch(arg.batch);
+						active_node+=arg.batch;
 						break;
 					}
 
@@ -116,7 +117,7 @@ public:
 					const double epsilon_prime = (arg.epsilon - delta) / (1 - delta);					
 					AdaptiveSelect(g, arg, factor, epsilon_prime, delta);
 				}
-
+				
 				high_resolution_clock::time_point endTime = high_resolution_clock::now();
 				duration<double> interval = duration_cast<duration<double>>(endTime - startTime);
 

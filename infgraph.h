@@ -48,16 +48,20 @@ public:
 	
 	//initialize PO each time it loads a possible world.
 	void load_possible_world(string index, const Argument & arg)
-	{
+	{	
 		//initialization
 		for (unsigned int i = 0; i < PO.size(); ++i)PO[i].clear();
 
-		int index1 = 0;
-		while (arg.dataset[index1] != '/')index1++;
-		int index2 = ++index1;
-		while (arg.dataset[index2] != '/')index2++;
+		//int index1 = 0;
+		// while (arg.dataset[index1] != '/')index1++;
+		// int index2 = ++index1;
+		// while (arg.dataset[index2] != '/')index2++;
+		//string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
 
-		string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
+		auto len=arg.dataset.length();
+		//cout<<"str_length "<<len<<"  substr "<<arg.dataset.substr(0, len-1)<<endl;
+		string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + index;
+		//string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + "99";
 
 		if (influModel == LT)file_name += "_lt";		
 
@@ -94,6 +98,7 @@ public:
 	char* map_file(const char* fname, size_t& length)
 	{
 		int fd = open(fname, O_RDONLY);
+		cout<<"fname in map_file "<<fname<<endl;
 		if (fd == -1)
 			handle_error("open");
 
@@ -110,11 +115,13 @@ public:
 
 		// TODO close fd at some point in time, call munmap(...)
 		close(fd);
+		//cout<<"finished loading possible world"<<endl;
 		return addr;
 	}
 
     void build_TRR_r(uint64 R, int root_num, double prob)
     {
+		//cout<<"building mRR"<<endl;
         if( R > INT_MAX ){
             cout<<"Error:R too large"<<endl;
             exit(1);
@@ -128,12 +135,13 @@ public:
  
   double build_seedset(unsigned int k, vector<int>&batch_set)
   {	  
+	//cout<<"begin building seed set "<<endl;
 	vector<int>marginal_gain(n, 0);
 	int tep = 0;
 	for (unsigned int i = 0; i < n; ++i)
 	{		
-		marginal_gain[i] = hyperG[i].size();
-		tep = tep> marginal_gain[i] ? tep : marginal_gain[i];
+		marginal_gain[i] = hyperG[i].size(); // initial marginal gain of each node.
+		tep = tep> marginal_gain[i] ? tep : marginal_gain[i]; // find out the largest marginal_gain
 	}
 
 	vector<vector<int>>node_dis(tep + 1, vector<int>());

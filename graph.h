@@ -1,7 +1,6 @@
 #define HEAD_INFO
 #include "sfmt/SFMT.h"
 #include "head.h"
-
 #include "MeasureM.h"
 #include "memoryusage.h"
 
@@ -27,34 +26,39 @@ public:
     }
 
     string folder;
+    //folder="src/"+folder;
     string graph_file;
-    void readNM()
-    {
-        ifstream cin((folder + "attribute.txt").c_str());
-        ASSERT(!cin == false);
-        string s;
-        while (cin >> s)
-        {
-            if (s.substr(0, 2) == "n=")
-            {
-                n = atoi(s.substr(2).c_str());
-                continue;
-            }
-            if (s.substr(0, 2) == "m=")
-            {
-                m = atoi(s.substr(2).c_str());
-                continue;
-            }
-            ASSERT(false);
-        }
-        TRACE(n, m );
-        cin.close();
-    }
+    // void readNM()
+    // {
+    //     string attr = "src/Tested-Dataset/"+folder +"attribute.txt";
+    //     cout<<"attr: "<<(attr).c_str()<<endl;
+    //     ifstream cin((attr).c_str());
+    //     ASSERT(!cin == false);
+    //     string s;
+    //     while (cin >> s)
+    //     {
+    //         if (s.substr(0, 2) == "n=")
+    //         {
+    //             n = atoi(s.substr(2).c_str());
+    //             continue;
+    //         }
+    //         if (s.substr(0, 2) == "m=")
+    //         {
+    //             m = atoi(s.substr(2).c_str());
+    //             continue;
+    //         }
+    //         ASSERT(false);
+    //     }
+    //     TRACE(n, m );
+    //     cin.close();
+    // }
 
     void readGraph()
     {
 		size_t length;
+        //graph_file="src/Tested-Dataset/"+graph_file;
 		int fd = open((graph_file).c_str(), O_RDWR);
+        cout<<"graph file: "<<(graph_file).c_str()<<endl;
 		if (fd == -1)
 			handle_error("open");
 		struct stat sb;
@@ -94,7 +98,7 @@ public:
 
     Graph(string folder, string graph_file): folder(folder), graph_file(graph_file)
     {
-        readNM();
+        //readNM();
 		
 		gT = vector<vector<int>>(n, vector<int>());		
 		probT = vector<vector<double>>(n, vector<double>());		

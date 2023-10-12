@@ -112,6 +112,7 @@ void RandBatch(int batch)
 	{		
 		while (active_set[node])node = sfmt_genrand_uint32(&sfmtSeed) % n;
 		seedSet.push_back(node);
+		cout<<"The random seed is "<<node<<endl;
 		--batch;
 	}
 }
