@@ -66,15 +66,20 @@ class ASM
 				if (ratio > factor*(1 - epsilon))				
 				{
 					//cout << "root_num: " << left_n / left_Q << endl;
-					for (auto it : batch_set)g.seedSet.push_back(it);
+					for (auto it : batch_set)
+					{
+						g.seedSet.push_back(it); 
+						std::cout<<it<<", ";
+					}
 					g.realization(batch_set, active_node);
 					return;
 				}
 				sample *= 2;
+				cout<<"The number of sample is "<<sample<<endl;
 			}
 			batch_set.clear();
 			g.build_seedset(batch, batch_set);
-			for (auto it : batch_set)g.seedSet.push_back(it);
+			for (auto it : batch_set) {g.seedSet.push_back(it); std::cout<<it<<", ";}
 			g.realization(batch_set, active_node);
 		}
 				

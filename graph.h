@@ -3,6 +3,7 @@
 #include "head.h"
 #include "MeasureM.h"
 #include "memoryusage.h"
+#include <fstream>
 
 using namespace std;
 
@@ -11,9 +12,9 @@ void handle_error(const char* msg);
 class Graph
 {
 public:    	
-	unsigned int n, m;
+	uint32_t n=0, m=0;
     	
-	vector<vector<int>> gT;	
+	vector<vector<uint32_t>> gT;	
 	vector<vector<double>> probT;	
 
     enum InfluModel {IC, LT};
@@ -53,12 +54,48 @@ public:
     //     cin.close();
     // }
 
+    void my_readGraph()
+    {
+        cout<<"reading graph"<<endl;
+        ifstream inFile((graph_file).c_str());
+        if(!inFile)
+	    {
+            cout<<"cannot open roots file."<<endl;
+            exit(1);
+	    }
+        inFile.seekg(0, std::ios_base::beg);
+        uint32_t u,v;
+        //double p;
+        inFile>>n>>m;
+        gT = vector<vector<uint32_t>>(n, vector<uint32_t>());		
+		probT = vector<vector<double>>(n, vector<double>());
+        while(!inFile.eof())
+        {
+            inFile>>u>>v;
+            gT[v].push_back(u);
+            inFile.ignore(10000, '\n');
+            //probT[v].push_back(p);
+            //m++;
+        }
+        //n=gT.size();
+        // Generate diffusion probabilities.
+        for(uint32_t i=0;i<n;i++)
+        {   
+            uint32_t in_deg=gT[i].size();
+            for(uint32_t j=0;j<in_deg;j++)
+            {
+                probT[i].push_back(float(1.0/in_deg));
+            }
+            //probT[i]=float(1.0/gT[i].size());
+        }
+    }
+
     void readGraph()
     {
 		size_t length;
         //graph_file="src/Tested-Dataset/"+graph_file;
 		int fd = open((graph_file).c_str(), O_RDWR);
-        cout<<"graph file: "<<(graph_file).c_str()<<endl;
+        //cout<<"graph file: "<<(graph_file).c_str()<<endl;
 		if (fd == -1)
 			handle_error("open");
 		struct stat sb;
@@ -98,12 +135,9 @@ public:
 
     Graph(string folder, string graph_file): folder(folder), graph_file(graph_file)
     {
-        //readNM();
-		
-		gT = vector<vector<int>>(n, vector<int>());		
-		probT = vector<vector<double>>(n, vector<double>());		
+        //readNM();		
 
-        readGraph();       
+        my_readGraph();       
     }
 };
 

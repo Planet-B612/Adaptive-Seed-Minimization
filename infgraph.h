@@ -1,11 +1,11 @@
 #include "iheap.h"
 #include <queue>	//priority_queue
 #include <utility>  // pair
-
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
 using namespace std::chrono;
+//using namespace std;
 
 class InfGraph: public Graph
 {
@@ -58,9 +58,11 @@ public:
 		// while (arg.dataset[index2] != '/')index2++;
 		//string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
 
-		auto len=arg.dataset.length();
+		vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
+		string a = dataset[arg.dataset_No];
+		auto len=a.length();
 		//cout<<"str_length "<<len<<"  substr "<<arg.dataset.substr(0, len-1)<<endl;
-		string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + index;
+		string file_name = "/home/cfeng/graphInfo/Tested-Dataset/"+dataset[arg.dataset_No] +"/"+ dataset[arg.dataset_No].substr(0,len) + "_" + index;
 		//string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + "99";
 
 		if (influModel == LT)file_name += "_lt";		
@@ -130,8 +132,7 @@ public:
 		while (counter < R)BuildTRR(counter++, root_num, prob);		
     }
 
-    #include "discrete_rrset.h"
-	
+#include "discrete_rrset.h"
  
   double build_seedset(unsigned int k, vector<int>&batch_set)
   {	  

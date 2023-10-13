@@ -68,9 +68,9 @@ int main(int argc, char* argv[])
 
 	int n, m;
 	
-
-	string dataset = argv[1];
-	string folder="src/Tested-Dataset/"+dataset;
+	vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
+	uint8_t dataset_No = atoi(argv[1]);
+	string folder="/home/cfeng/graphInfo/Tested-Dataset/"+dataset[dataset_No];
 	int num = atoi(argv[2]);
 
 	sfmt_t sfmtSeed;
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	for (int k = 0; k < num; k++)
 	{
 		string index = to_string(k);
-		string outfile = folder+"/"+dataset + "_" + index;
+		string outfile = folder+"/"+dataset[dataset_No] + "_" + index;
 		//cout<<folder<<endl;
 		//cout<<outfile<<endl;
 		ofstream output(outfile);
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 			for (int j = 0; j < in_edge[i].size(); j++)
 			{
 				//if ((double)rand() / RAND_MAX < 1.0 / in_edge[i].size())output << in_edge[i][j] << " " << i << endl;
-				if (sfmt_genrand_real1(&sfmtSeed) < 1.0 / in_edge[i].size())output << in_edge[i][j] << " " << i << endl;
+				if (sfmt_genrand_real1(&sfmtSeed) < 1.0 / in_edge[i].size()) output << in_edge[i][j] << " " << i << endl;
 				//if ((double)rand() / RAND_MAX < probT[i][j])output << in_edge[i][j] << " " << i << endl;
 				//if ((double)rand() / RAND_MAX < probT[i][j])output << in_edge[i][j] << " " << i << endl;				
 			}

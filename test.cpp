@@ -53,11 +53,11 @@ void Run(int argn, char **argv)
 
     for (int i = 0; i < argn; i++)
     {
-        if (argv[i] == string("-help") || argv[i] == string("--help") || argn == 1)
-        {
-            cout << "./imm -dataset *** -epsilon *** -k ***  -model IC|LT -seedfile *** -time *** -batch ***" << endl;
-            return ;
-        }	
+        // if (argv[i] == string("-help") || argv[i] == string("--help") || argn == 1)
+        // {
+        //     cout << "./imm -dataset *** -epsilon *** -k ***  -model IC|LT -seedfile *** -time *** -batch ***" << endl;
+        //     return ;
+        // }	
 
 		if (argv[i] == string("-dataset_No"))
 			arg.dataset = dataset[stoi(argv[i + 1])];
@@ -74,7 +74,7 @@ void Run(int argn, char **argv)
 		if (argv[i] == string("-time"))
 			arg.time = atoi(argv[i + 1]);
     }
-    ASSERT(arg.dataset != "");
+    //ASSERT(arg.dataset != "");
     ASSERT(arg.model == "IC" || arg.model == "LT");
     
     string graph_file = "/home/cfeng/graphInfo/"+dataset[arg.dataset_No];
