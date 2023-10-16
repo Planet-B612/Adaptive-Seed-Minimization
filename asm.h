@@ -75,15 +75,15 @@ class ASM
 					return;
 				}
 				sample *= 2;
-				cout<<"The number of sample is "<<sample<<endl;
+				//cout<<"The number of sample is "<<sample<<endl;
 			}
 			batch_set.clear();
 			g.build_seedset(batch, batch_set);
 			for (auto it : batch_set) {g.seedSet.push_back(it); std::cout<<it<<", ";}
 			g.realization(batch_set, active_node);
 		}
-				
-public:               
+
+public:
         static void SeedMinimize(InfGraph &g, const Argument &arg)
         {                  			            					
 			
@@ -98,7 +98,8 @@ public:
 			for (int i = 0; i < arg.time; i++)
             {				
 				//the preparation work before each time.						
-				g.load_possible_world(to_string(i), arg);
+				//g.load_possible_world(to_string(i), arg);
+				g.generate_possible_world(arg);
 				g.init_hyper_graph();				
 				active_node = 0;				
 				left_Q = arg.Q; //change the left_node as the quota

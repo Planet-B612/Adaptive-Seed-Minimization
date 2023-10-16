@@ -107,6 +107,5 @@ int main(int argn, char **argv)
     OutputInfo info(argn, argv);
     
     Run( argn, argv );
-    // disp_mem_usage();
     cout<<"Memory(MB) "<<getProcMemory()<<endl;
 }

@@ -73,9 +73,11 @@ public:
         {
             inFile>>u>>v;
             gT[v].push_back(u);
-            inFile.ignore(10000, '\n');
-            //probT[v].push_back(p);
-            //m++;
+            if((folder=="nethept")||(folder=="epinions"))
+            {
+                inFile.ignore(10000, '\n');  // For well-formed dataset, this line may ignore the next line which is useful.
+            }
+            
         }
         //n=gT.size();
         // Generate diffusion probabilities.

@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <chrono>
+#include "sfmt/SFMT.h"
 using namespace std::chrono;
 //using namespace std;
 
@@ -45,6 +46,66 @@ public:
 		seedSet.clear(); 				
 		fill(active_set.begin(), active_set.end(), false);		
     }
+
+	/// Genrerate a possible world, PO.
+	void generate_possible_world(const Argument & arg)
+	{
+		if(influModel==IC)
+		{
+			for(long unsigned int v=0;v<gT.size();v++)
+			{
+				for(long unsigned int u=0;u<gT[v].size();u++)
+				{
+					int node=gT[v][u];
+					auto rand=sfmt_genrand_real1(&sfmtSeed);
+					//double p = probT[v][node];
+					double p = probT[v][u];
+					if(rand<p)
+					//if(sfmt_genrand_real1(&sfmtSeed)<probT[v][node])
+					{
+						PO[node].push_back(v);
+					}
+				}
+			}
+		}
+		else
+		{
+			for(long unsigned int v=0;v<gT.size();v++)
+			{
+				if(gT[v].size()==0)
+				{
+					continue;
+				}
+				int index = sfmt_genrand_uint32(&sfmtSeed) % gT[v].size();
+				int u = gT[v][index];
+				PO[u].push_back(v);
+			}
+		}
+
+		// ifstream inFile((graph_file).c_str());
+        // if(!inFile)
+	    // {
+        //     cout<<"cannot open roots file."<<endl;
+        //     exit(1);
+	    // }
+        // inFile.seekg(0, std::ios_base::beg);
+        // uint32_t u,v;
+        // //double p;
+        // //inFile>>n>>m;
+		// inFile.ignore(10000, '\n'); // ignore the first line which records n and m
+        // //gT = vector<vector<uint32_t>>(n, vector<uint32_t>());		
+		// //probT = vector<vector<double>>(n, vector<double>());
+        // while(!inFile.eof())
+        // {
+        //     inFile>>u>>v;
+
+        //     gT[v].push_back(u);
+        //     if((folder=="nethept")||(folder=="epinions"))
+        //     {
+        //         inFile.ignore(10000, '\n');  // For well-formed dataset, this line may ignore the next line which is useful.
+        //     }
+        // }
+	}
 	
 	//initialize PO each time it loads a possible world.
 	void load_possible_world(string index, const Argument & arg)
