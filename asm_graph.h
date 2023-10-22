@@ -1,8 +1,8 @@
 #define HEAD_INFO
 #include "sfmt/SFMT.h"
-#include "head.h"
-#include "MeasureM.h"
-#include "memoryusage.h"
+#include "asm_head.h"
+#include "asm_MeasureM.h"
+#include "asm_memoryusage.h"
 #include <fstream>
 
 using namespace std;

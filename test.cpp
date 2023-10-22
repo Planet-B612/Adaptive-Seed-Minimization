@@ -1,7 +1,7 @@
 #define HEAD_INFO
 
 #include "sfmt/SFMT.h"
-#include "head.h"
+#include "asm_head.h"
 
 class Argument{
 public:
@@ -17,8 +17,8 @@ public:
 
 };
 
-#include "graph.h"
-#include "infgraph.h"
+#include "asm_graph.h"
+#include "asm_infgraph.h"
 #include "asm.h"
 
 void OutputSeedSetToFile(vector<int> seed_set, string seedfile)

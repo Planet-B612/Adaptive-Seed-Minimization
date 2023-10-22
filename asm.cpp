@@ -17,8 +17,8 @@ public:
 
 };
 
-#include "graph.h"
-#include "infgraph.h"
+#include "asm_graph.h"
+#include "asm_infgraph.h"
 #include "asm.h"
 
 void OutputSeedSetToFile(vector<int> seed_set, string seedfile)
@@ -43,7 +43,7 @@ void run_with_parameter(InfGraph &g, const Argument & arg)
 void Run(int argn, char **argv)
 {
     Argument arg;
-    arg.dataset_No=2;
+    arg.dataset_No=2;  // 2, 4, 5, 6
     vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
     arg.Q = 0.1;    
 	arg.batch = 1;	

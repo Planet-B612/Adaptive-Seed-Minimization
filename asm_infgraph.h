@@ -1,4 +1,4 @@
-#include "iheap.h"
+#include "asm_iheap.h"
 #include <queue>	//priority_queue
 #include <utility>  // pair
 #include <unordered_set>
@@ -193,7 +193,7 @@ public:
 		while (counter < R)BuildTRR(counter++, root_num, prob);		
     }
 
-#include "discrete_rrset.h"
+#include "asm_discrete_rrset.h"
  
   double build_seedset(unsigned int k, vector<int>&batch_set)
   {	  
