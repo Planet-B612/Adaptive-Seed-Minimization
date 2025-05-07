@@ -1,3 +1,4 @@
+#pragma once
 #include "asm_iheap.h"
 #include <queue>	//priority_queue
 #include <utility>  // pair
@@ -15,15 +16,15 @@ private:
     vector<int> visit_mark;
 public:
     vector<vector<int>> hyperG;
+	vector<vector<int>> hyperG_1;
     vector<vector<int>> hyperGT;
-		
+    vector<vector<int>> hyperGT_1;	
 	vector<vector<int>>PO;
 	vector<bool>active_set;
-
 	deque<int> q;
 	sfmt_t sfmtSeed;
 	vector<int> seedSet;
-
+	int numRRsets;
 
     InfGraph(string folder, string graph_file): Graph(folder, graph_file)
     {
@@ -33,23 +34,30 @@ public:
         visit_mark = vector<int> (n);
 		
 		hyperG.resize(n, vector<int>());
+		hyperG_1.resize(n, vector<int>());
 		PO.resize(n, vector<int>());
 		
-		//node_influence = vector<int>(n, 0);		
+		//node_influence = vector<int>(n, 0);	
+		numRRsets = 0;	
 		active_set = vector<bool>(n, false);
     }
 
-    void init_hyper_graph(){		
+    void init_hyper_graph()
+	{		
 		for (unsigned int i = 0; i < hyperG.size(); ++i)hyperG[i].clear();
 		for (unsigned int i = 0; i < hyperGT.size(); ++i)vector<int>().swap(hyperGT[i]);
+		for (unsigned int i = 0; i < hyperG_1.size(); ++i)hyperG_1[i].clear();
+		for (unsigned int i = 0; i < hyperGT_1.size(); ++i)vector<int>().swap(hyperGT_1[i]);
 		hyperGT.clear();		
+		hyperGT_1.clear();
 		seedSet.clear(); 				
 		fill(active_set.begin(), active_set.end(), false);		
     }
 
 	/// Genrerate a possible world, PO.
-	void generate_possible_world(const Argument & arg)
+	void generate_possible_world(const Argument arg)
 	{
+		for (unsigned int i = 0; i < PO.size(); ++i)PO[i].clear();
 		if(influModel==IC)
 		{
 			for(long unsigned int v=0;v<gT.size();v++)
@@ -108,7 +116,7 @@ public:
 	}
 	
 	//initialize PO each time it loads a possible world.
-	void load_possible_world(string index, const Argument & arg)
+	void load_possible_world(string index, const Argument arg)
 	{	
 		//initialization
 		for (unsigned int i = 0; i < PO.size(); ++i)PO[i].clear();
@@ -118,44 +126,55 @@ public:
 		// int index2 = ++index1;
 		// while (arg.dataset[index2] != '/')index2++;
 		//string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
-
-		vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
-		string a = dataset[arg.dataset_No];
-		auto len=a.length();
-		//cout<<"str_length "<<len<<"  substr "<<arg.dataset.substr(0, len-1)<<endl;
-		string file_name = "/home/cfeng/graphInfo/Tested-Dataset/"+dataset[arg.dataset_No] +"/"+ dataset[arg.dataset_No].substr(0,len) + "_" + index;
-		//string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + "99";
-
-		if (influModel == LT)file_name += "_lt";		
-
-		size_t length;
-		auto ptr = map_file(file_name.c_str(), length);
-		auto f = ptr;
-		auto tep = f;
-		char buffer[256];
-
-		auto l = f + length;
-
-		unsigned int t1, t2;
-
-		while (f && f != l)
+		string pw_path="/data/fc/realization/" + arg.dataset[arg.cur_dataset_No] + "_pw_ic" + index + ".txt";
+		cout << pw_path <<endl;
+		// pw_path+="_pw_ic.txt";
+		ifstream load_pw;
+		load_pw.open(pw_path);
+		uint32_t i, nbr;
+		while(!load_pw.eof())
 		{
-			if ((f = static_cast<char*>(memchr(f, '\n', l - f))))
-			{
-				memset(buffer, 0, sizeof(buffer));
-				memcpy(buffer, tep, f - tep);
-				f++;
-				tep = f;
-				stringstream s;
-				s << buffer;
-				s >> t1 >> t2;
-				ASSERT(t1 < n);
-				ASSERT(t2 < n);
-
-				PO[t1].push_back(t2);
-			}
+			load_pw>>i>>nbr;
+			PO[i].push_back(nbr);
 		}
-		munmap(ptr, length);
+		PO[i].pop_back();  // the last row is empty, due to the mechanism of eof, a duplicated nbr will be added. Thus, we need to pop_back here
+
+		// string a = dataset[arg.dataset_No];
+		// auto len=a.length();
+		// //cout<<"str_length "<<len<<"  substr "<<arg.dataset.substr(0, len-1)<<endl;
+		// string file_name = "/home/cfeng/graphInfo/Tested-Dataset/"+dataset[arg.dataset_No] +"/"+ dataset[arg.dataset_No].substr(0,len) + "_" + index;
+		// //string file_name = "src/Tested-Dataset/"+arg.dataset + arg.dataset.substr(0,len-1) + "_" + "99";
+
+		// if (influModel == LT)file_name += "_lt";		
+
+		// size_t length;
+		// auto ptr = map_file(file_name.c_str(), length);
+		// auto f = ptr;
+		// auto tep = f;
+		// char buffer[256];
+
+		// auto l = f + length;
+
+		// unsigned int t1, t2;
+
+		// while (f && f != l)
+		// {
+		// 	if ((f = static_cast<char*>(memchr(f, '\n', l - f))))
+		// 	{
+		// 		memset(buffer, 0, sizeof(buffer));
+		// 		memcpy(buffer, tep, f - tep);
+		// 		f++;
+		// 		tep = f;
+		// 		stringstream s;
+		// 		s << buffer;
+		// 		s >> t1 >> t2;
+		// 		ASSERT(t1 < n);
+		// 		ASSERT(t2 < n);
+
+		// 		PO[t1].push_back(t2);
+		// 	}
+		// }
+		// munmap(ptr, length);
 	}
 	
 	char* map_file(const char* fname, size_t& length)
@@ -182,7 +201,7 @@ public:
 		return addr;
 	}
 
-    void build_TRR_r(uint64 R, int root_num, double prob)
+    void build_TRR_r(double R, int root_num, double prob)
     {
 		//cout<<"building mRR"<<endl;
         if( R > INT_MAX ){
@@ -190,10 +209,17 @@ public:
             exit(1);
         }        
 		unsigned int counter = 0;
-		while (counter < R)BuildTRR(counter++, root_num, prob);		
+		auto cur_RR_num= hyperGT.size();
+		while (counter < R)
+		{
+			BuildTRR(cur_RR_num+counter, root_num, prob, hyperG, hyperGT);
+			BuildTRR(cur_RR_num+counter, root_num, prob, hyperG_1, hyperGT_1);
+			++counter;
+		}
+		numRRsets = hyperGT.size();
     }
 
-#include "asm_discrete_rrset.h"
+	#include "asm_discrete_rrset.h"
  
   double build_seedset(unsigned int k, vector<int>&batch_set)
   {	  
@@ -274,8 +300,46 @@ public:
 		}
 	}
 	return 1.0*influence;
-  }
- };
+  } // func: build_seedset()
+
+	static bool comp(pair<uint32_t, double> a, pair<uint32_t, double> b)
+	{
+		return a.second > b.second;
+	} // sort in descending order.
+
+	double max_ratio(int k, vector<int>&seed_set, const vector<float> cost, vector<vector<int>> &RR_set, vector<vector<int>> &FR_set)
+	{
+		vector<pair<uint32_t, double>> ratio;
+		vector<bool> RR_mark(RR_set.size(), false);
+		vector<int> deduction(n, 0);
+		int total_coverage=0;
+
+		for(int i=0;i<k;i++)
+		{
+			for(uint32_t id=0;id<n;id++)
+			{
+				uint32_t node=id;
+				uint32_t coverage=FR_set[node].size();
+				for(auto RRid:FR_set[node])
+				{
+					if(RR_mark[RRid]) coverage--;
+				}
+				float node_cost=cost[node];
+				ratio.push_back(make_pair(node, 1.0*coverage/node_cost));
+			}
+			std::sort(ratio.begin(),ratio.end(),comp);
+			int seed=ratio[0].first;
+			total_coverage=total_coverage+ratio[0].second*cost[seed];
+			seed_set.push_back(seed);
+			for(auto RRid:FR_set[seed])
+			{
+				RR_mark[RRid]=true;
+			}
+		}
+		return total_coverage;
+	}
+
+ }; //cls
 
 
 

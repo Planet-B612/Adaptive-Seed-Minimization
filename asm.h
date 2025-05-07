@@ -30,10 +30,10 @@ class ASM
 {
     private:               
 		static unsigned int active_node; //this is to record the number of the active node.
-		static unsigned int left_Q;
+		static unsigned int left_eta;
 		static unsigned int left_n;				
 
-		static void AdaptiveSelect(InfGraph &g, const Argument & arg, const double factor, const double epsilon, const double delta)
+		static void AdaptiveSelect(InfGraph &g, const Argument & arg, const double factor, const double epsilon, const double delta, const vector<float> cost)
 		{			
 			const unsigned int batch = arg.batch;
 			const double alpha = sqrt(log(6.0 / delta));
@@ -53,23 +53,25 @@ class ASM
 			
 			while (sample < theta_max)
 			{
-				g.build_TRR_r((int64)sample, left_n / left_Q, 1.*(left_n % left_Q) / left_Q);
+				g.build_TRR_r(sample, left_n / left_eta, 1.*(left_n % left_eta) / left_eta);
 				batch_set.clear();
 				//calculate the upper bound here				
-				double influence = g.build_seedset(batch, batch_set);  //we need to be careful here.			
+				// double influence = g.build_seedset(batch, batch_set);  //we need to be careful here.
+				double influence = g.max_ratio(batch, batch_set, cost, g.hyperG, g.hyperGT);
+				int coverage_1=g.coverage(batch_set, g.hyperG_1, g.hyperGT_1);
 
-				double lower = sqr(sqrt(influence + 2. * a1 / 9.) - sqrt(a1 / 2.)) - a1 / 18;
+				double lower = sqr(sqrt(1.0*coverage_1 + 2. * a1 / 9.) - sqrt(a1 / 2.)) - a1 / 18;
 				double upper = sqr(sqrt(influence / factor + a2 / 2.) + sqrt(a2 / 2.));				
 
 				double ratio = lower / upper;
 
 				if (ratio > factor*(1 - epsilon))				
 				{
-					//cout << "root_num: " << left_n / left_Q << endl;
+					//cout << "root_num: " << left_n / left_eta << endl;
 					for (auto it : batch_set)
 					{
 						g.seedSet.push_back(it); 
-						std::cout<<it<<", ";
+						// std::cout<<it<<", ";
 					}
 					g.realization(batch_set, active_node);
 					return;
@@ -78,50 +80,55 @@ class ASM
 				//cout<<"The number of sample is "<<sample<<endl;
 			}
 			batch_set.clear();
-			g.build_seedset(batch, batch_set);
-			for (auto it : batch_set) {g.seedSet.push_back(it); std::cout<<it<<", ";}
+			// g.build_seedset(batch, batch_set);
+			g.max_ratio(batch, batch_set, cost, g.hyperG, g.hyperGT);
+			for (auto it : batch_set) 
+			{
+				g.seedSet.push_back(it); 
+				// std::cout<<it<<", ";
+			}
 			g.realization(batch_set, active_node);
 		}
 
 public:
-        static void SeedMinimize(InfGraph &g, const Argument &arg)
+        static pair<double, double> SeedMinimize(InfGraph &g, const Argument &arg, const vector<float> cost, int k)
         {                  			            					
 			
-			cout << "expected spread: " << arg.Q << endl;
+			cout << "expected spread: " << arg.eta << endl;
 
 			double total_spread = 0;			
 			double total_time = 0;
 						
 			double seed_num = 0;			
 			const double factor = 1. - pow(1. - 1. / arg.batch, arg.batch);
-
+			double total_cost=0.0;
 			for (int i = 0; i < arg.time; i++)
             {				
 				//the preparation work before each time.						
-				//g.load_possible_world(to_string(i), arg);
-				g.generate_possible_world(arg);
+				g.load_possible_world(to_string(i), arg);
+				// g.generate_possible_world(arg);
 				g.init_hyper_graph();				
 				active_node = 0;				
-				left_Q = arg.Q; //change the left_node as the quota
+				left_eta = arg.eta; //change the left_node as the quota
 				left_n = g.n;
 				
 				high_resolution_clock::time_point startTime = high_resolution_clock::now();				
 
-				while (active_node <  arg.Q )  //set the eta as 1;
+				while (active_node <  arg.eta )  //set the eta as 1;
  				{							
-					left_Q = arg.Q - active_node;
+					left_eta = arg.eta - active_node;
 					left_n = g.n - active_node;
-					//cout<<"Left Q is "<<left_Q<<endl;
-					if (left_Q <= arg.batch)
-					{
-						g.RandBatch(arg.batch);
-						active_node+=arg.batch;
-						break;
-					}
-
-					const double delta = 1. / left_n;															
-					const double epsilon_prime = (arg.epsilon - delta) / (1 - delta);					
-					AdaptiveSelect(g, arg, factor, epsilon_prime, delta);
+					//cout<<"Left eta is "<<left_eta<<endl;
+					// if (left_eta <= arg.batch)
+					// {
+					// 	g.RandBatch(arg.batch);
+					// 	active_node+=arg.batch;
+					// 	break;
+					// }
+					g.numRRsets = 0;  // added
+					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta);														
+					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);				
+					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost);
 				}
 				
 				high_resolution_clock::time_point endTime = high_resolution_clock::now();
@@ -132,19 +139,34 @@ public:
 			
 				total_spread += active_node;
 
+				for(auto seed:g.seedSet)	total_cost+=cost[seed];
+
 				cout << "SingleSeed " << g.seedSet.size() << endl;
 				cout << "SingleRuntime " << (double)interval.count() << endl;		
 				cout << "SingleSpread " << active_node << endl;
+				
+				double single_cost = 0.0;
+				for(auto seed:g.seedSet)	single_cost+=cost[seed];
+				cout << "SingleCost " << single_cost << endl;
+				
+				ofstream out_seeds("../results/newseeds/ASTI_" + arg.dataset[k] + to_string(arg.eta) + arg.model + "_" + to_string(i) + ".txt", ios::out);
+				assert((!out_seeds.fail()));
+				for (auto node : g.seedSet)
+				{
+					out_seeds << node << endl;
+				}
+				out_seeds.close();
             }            
 			
 			cout << "RunningTime(s) " << total_time / arg.time << endl;			
-
             disp_mem_usage();			
-			cout << "AdaptiveSpread " << total_spread / arg.time << endl;
-			cout << "TotalSeed " << seed_num / arg.time << endl;
+			cout << "Average_Spread " << total_spread / arg.time << endl;
+			cout << "Average_Seed_Num" << seed_num / arg.time << endl;
+			//return 1.0*seed_num/arg.time;
+			return make_pair(1.0*total_cost/arg.time, 1.0*total_spread / arg.time);
         }
 };
 
 unsigned int  ASM::active_node = 0;
-unsigned int  ASM::left_Q = 0;
+unsigned int  ASM::left_eta = 0;
 unsigned int  ASM::left_n = 0;

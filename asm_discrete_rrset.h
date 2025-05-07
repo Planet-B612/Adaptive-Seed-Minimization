@@ -2,7 +2,7 @@
 * BFS starting from one node
 */
 
-int BuildTRR(int hyperiiid, int root_num, double prob)
+int BuildTRR(int hyperiiid, int root_num, double prob, vector<vector<int>> &FR_sets, vector<vector<int>> &RR_sets)
 {			
 	root_num += (sfmt_genrand_real1(&sfmtSeed) <= prob);		
 	
@@ -18,7 +18,7 @@ int BuildTRR(int hyperiiid, int root_num, double prob)
 		--root_num;
 		visit_mark[n_visit_mark++] = node;
 		visit[node] = true;
-		hyperG[node].push_back(hyperiiid);		
+		FR_sets[node].push_back(hyperiiid);		
 	}
 
 	if (influModel == IC)
@@ -38,7 +38,7 @@ int BuildTRR(int hyperiiid, int root_num, double prob)
 				visit_mark[n_visit_mark++] = v;
 				visit[v] = true;
 				q.push_back(v);	
-				hyperG[v].push_back(hyperiiid);				
+				FR_sets[v].push_back(hyperiiid);	
 			}
 		}
 	}
@@ -60,7 +60,7 @@ int BuildTRR(int hyperiiid, int root_num, double prob)
 			visit[v] = true;
 			visit_mark[n_visit_mark++] = v;
 			q.push_back(v);
-			hyperG[v].push_back(hyperiiid);			
+			FR_sets[v].push_back(hyperiiid);			
 		}
 	}
 	else
@@ -69,7 +69,7 @@ int BuildTRR(int hyperiiid, int root_num, double prob)
 
 	for (unsigned int i = 0; i < n_visit_mark; i++)visit[visit_mark[i]] = false;	
 
-	hyperGT.push_back(vector<int>(visit_mark.begin(), visit_mark.begin() + n_visit_mark));
+	RR_sets.push_back(vector<int>(visit_mark.begin(), visit_mark.begin() + n_visit_mark));
 
 	return 0;
 }
@@ -103,6 +103,10 @@ void realization(vector<int> batch_set, unsigned int & active_node)
 	for (unsigned int i = 0; i < hyperG.size(); ++i)hyperG[i].clear();
 	for (unsigned int i = 0; i < hyperGT.size(); ++i)vector<int>().swap(hyperGT[i]);
 	hyperGT.clear();
+	for (unsigned int i = 0; i < hyperG_1.size(); ++i)hyperG_1[i].clear();
+	for (unsigned int i = 0; i < hyperGT_1.size(); ++i)vector<int>().swap(hyperGT_1[i]);
+	hyperGT_1.clear();
+	numRRsets=0;
 }
 
 void RandBatch(int batch)
@@ -114,5 +118,20 @@ void RandBatch(int batch)
 		seedSet.push_back(node);
 		cout<<"The random seed is "<<node<<endl;
 		--batch;
+	}
+}
+
+int coverage(vector<int> seed_set, vector<vector<int>> FR_sets, vector<vector<int>> RR_sets)
+{
+	vector<bool> RR_mark(RR_sets.size(), false);
+	int coverage = 0;
+	for (auto seed : seed_set)
+	{
+		for (auto hyperiiid : FR_sets[seed])
+		{
+			if (RR_mark[hyperiiid]) continue;
+			RR_mark[hyperiiid] = true;
+			++coverage;
+		}
 	}
 }

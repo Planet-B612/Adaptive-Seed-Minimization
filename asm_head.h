@@ -257,7 +257,6 @@ string currentTimestampStr() {
 }
 
 
-
 class Timer
 {
     public:

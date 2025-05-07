@@ -1,5 +1,6 @@
+#pragma once
 #define HEAD_INFO
-#include "sfmt/SFMT.h"
+// #include "sfmt/SFMT.h"
 #include "asm_head.h"
 #include "asm_MeasureM.h"
 #include "asm_memoryusage.h"
