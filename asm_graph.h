@@ -87,7 +87,7 @@ public:
             uint32_t in_deg=gT[i].size();
             for(uint32_t j=0;j<in_deg;j++)
             {
-                probT[i].push_back(float(1.0/in_deg));
+                probT[i].push_back(double(1.0/in_deg));
             }
             //probT[i]=float(1.0/gT[i].size());
         }
