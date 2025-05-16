@@ -134,4 +134,5 @@ int coverage(vector<int> seed_set, vector<vector<int>> FR_sets, vector<vector<in
 			++coverage;
 		}
 	}
+	return coverage;
 }

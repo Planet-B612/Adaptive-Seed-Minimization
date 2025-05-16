@@ -108,14 +108,16 @@ public:
 				g.load_possible_world(to_string(i), arg);
 				// g.generate_possible_world(arg);
 				g.init_hyper_graph();				
-				active_node = 0;				
+				active_node = 0;
+				int cnt = 0;		
 				left_eta = arg.eta; //change the left_node as the quota
 				left_n = g.n;
 				
 				high_resolution_clock::time_point startTime = high_resolution_clock::now();				
 
 				while (active_node <  arg.eta )  //set the eta as 1;
- 				{							
+ 				{				
+					auto start = std::chrono::high_resolution_clock::now();			
 					left_eta = arg.eta - active_node;
 					left_n = g.n - active_node;
 					//cout<<"Left eta is "<<left_eta<<endl;
@@ -129,6 +131,10 @@ public:
 					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta);														
 					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);				
 					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost);
+					auto now = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<double> elapsed = now - start;
+					cout<<"round "<<cnt <<","<<left_eta<<","<< elapsed.count() << "s"<<endl;
+					cnt++;
 				}
 				
 				high_resolution_clock::time_point endTime = high_resolution_clock::now();
@@ -149,13 +155,13 @@ public:
 				for(auto seed:g.seedSet)	single_cost+=cost[seed];
 				cout << "SingleCost " << single_cost << endl;
 				
-				ofstream out_seeds("../results/newseeds/ASTI_" + arg.dataset[k] + to_string(arg.eta) + arg.model + "_" + to_string(i) + ".txt", ios::out);
-				assert((!out_seeds.fail()));
-				for (auto node : g.seedSet)
-				{
-					out_seeds << node << endl;
-				}
-				out_seeds.close();
+				// ofstream out_seeds("../results/newseeds/ASTI_" + arg.dataset[k] + to_string(arg.eta) + arg.model + "_" + to_string(i) + ".txt", ios::out);
+				// assert((!out_seeds.fail()));
+				// for (auto node : g.seedSet)
+				// {
+				// 	out_seeds << node << endl;
+				// }
+				// out_seeds.close();
             }            
 			
 			cout << "RunningTime(s) " << total_time / arg.time << endl;			

@@ -126,7 +126,7 @@ public:
 		// int index2 = ++index1;
 		// while (arg.dataset[index2] != '/')index2++;
 		//string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
-		string pw_path="/data/fc/realization/" + arg.dataset[arg.cur_dataset_No] + "_pw_ic" + index + ".txt";
+		string pw_path="/data/gongyao/realization/" + arg.dataset[arg.dataset_No] + "_pw_ic" + index + ".txt";
 		cout << pw_path <<endl;
 		// pw_path+="_pw_ic.txt";
 		ifstream load_pw;
@@ -307,11 +307,11 @@ public:
 		return a.second > b.second;
 	} // sort in descending order.
 
-	double max_ratio(int k, vector<int>&seed_set, const vector<float> cost, vector<vector<int>> &RR_set, vector<vector<int>> &FR_set)
+	double max_ratio(int k, vector<int>&seed_set, const vector<float> cost, vector<vector<int>> &FR_set, vector<vector<int>> &RR_set)
 	{
 		vector<pair<uint32_t, double>> ratio;
 		vector<bool> RR_mark(RR_set.size(), false);
-		vector<int> deduction(n, 0);
+		// vector<int> deduction(n, 0);
 		int total_coverage=0;
 
 		for(int i=0;i<k;i++)
@@ -335,6 +335,7 @@ public:
 			{
 				RR_mark[RRid]=true;
 			}
+			ratio.clear();
 		}
 		return total_coverage;
 	}
