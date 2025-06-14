@@ -16,8 +16,9 @@ public:
     //std::vector<string> dataset;
     bool Rnd_cost=true;
     //vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
-    vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
-    vector<uint32_t> dataset_No={3,4,5};
+    // vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
+    vector<string> dataset = {"facebook", "dblp", "flickr","nethept","epinions", "youtube", "pokec", "orkut", "livejournal", "friendster","DBLP_sym","Youtube_sym","twitter","citeseer","Flickr_sym","wikitalk","wikitalkar"};
+    int dataset_No= 4;
     int cur_dataset_No=0;
 
 };
@@ -49,9 +50,9 @@ void OutputSeedSetToFile(vector<int> seed_set, string seedfile)
 void Run(int argn, char **argv)
 {
     Argument arg;
-    string result_dir="backup.txt";
-	std::fstream result_bk(result_dir, ios::app);
-	ASSERT(!result_bk.fail());
+    // string result_dir="backup.txt";
+	// std::fstream result_bk(result_dir, ios::app);
+	// ASSERT(!result_bk.fail());
 
     for (int i = 0; i < argn; i++)
     {
@@ -61,8 +62,8 @@ void Run(int argn, char **argv)
             return ;
         }	
 
-		// if (argv[i] == string("-dataset_No"))			
-        //     arg.cur_dataset_No = arg.dataset[stoi(argv[i + 1])];
+		if (argv[i] == string("-dataset_No"))			
+            arg.dataset_No = stoi(argv[i + 1]);
 		if (argv[i] == string("-epsilon"))
 			arg.epsilon = atof(argv[i + 1]);
 		if (argv[i] == string("-eta"))
@@ -77,10 +78,11 @@ void Run(int argn, char **argv)
 			arg.time = atoi(argv[i + 1]);
     }
     ASSERT(arg.model == "IC" || arg.model == "LT");
-    for(auto k:arg.dataset_No)
+    // for(auto k:arg.dataset_No)
     {
-        string graph_path = "/data/fc/graphInfo/"+arg.dataset[k]; 
-        for(auto i=0;i<5;i++)
+        auto k=arg.dataset_No;
+        string graph_path = "/data/gongyao/graphInfo/"+arg.dataset[k]; 
+        // for(auto i=0;i<5;i++)
         {           
             InfGraph g(arg.dataset[k], graph_path);  // should not be put above, since the mRR-sets should be cleared each time            
             if (arg.eta > 1.0) 
@@ -90,7 +92,7 @@ void Run(int argn, char **argv)
             }
             arg.eta+= arg.eta_delta;
             arg.eta*= g.n;
-            result_bk<<"# The parameters are: Aiming eta="<<arg.eta<<", model="<<arg.model<<", epsilon_Inf="<<arg.epsilon<<", Rnd_cost="<<to_string(arg.Rnd_cost)<<", batch="<<arg.batch<<", time="<<arg.time<<endl;
+            // result_bk<<"# The parameters are: Aiming eta="<<arg.eta<<", model="<<arg.model<<", epsilon_Inf="<<arg.epsilon<<", Rnd_cost="<<to_string(arg.Rnd_cost)<<", batch="<<arg.batch<<", time="<<arg.time<<endl;
 
             if (arg.model == "IC")
                 g.setInfuModel(InfGraph::IC);
@@ -101,14 +103,14 @@ void Run(int argn, char **argv)
 
             vector<float> cost(g.n);
             string cost_file;
-            if(arg.Rnd_cost)
+            // if(arg.Rnd_cost)
             {
-                cost_file=graph_path+arg.dataset[k]+"_cost_Rand.txt";
+                cost_file="/data/gongyao/graphInfo/"+arg.dataset[k]+"_cost_Rand.txt";
             }
-            else
-            {
-                cost_file=graph_path+arg.dataset[k]+"_cost_001DEG.txt";
-            }
+            // else
+            // {
+            //     cost_file=graph_path+arg.dataset[k]+"_cost_001DEG.txt";
+            // }
             std::ifstream inFile;
             inFile.open(cost_file);
             if(!inFile)
@@ -137,7 +139,7 @@ void Run(int argn, char **argv)
             high_resolution_clock::time_point endTime = high_resolution_clock::now();
 			duration<double> interval = duration_cast<duration<double>>(endTime - startTime);
             auto avg_runtime= (double)interval.count()/arg.time;
-            result_bk<<"("<<arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
+            // result_bk<<"("<<arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
             cout<<"("<<arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
         }
     }

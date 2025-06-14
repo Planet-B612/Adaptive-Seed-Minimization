@@ -58,9 +58,9 @@ class ASM
 				//calculate the upper bound here				
 				// double influence = g.build_seedset(batch, batch_set);  //we need to be careful here.
 				double influence = g.max_ratio(batch, batch_set, cost, g.hyperG, g.hyperGT);
-				int coverage_1=g.coverage(batch_set, g.hyperG_1, g.hyperGT_1);
-
-				double lower = sqr(sqrt(1.0*coverage_1 + 2. * a1 / 9.) - sqrt(a1 / 2.)) - a1 / 18;
+				// int coverage_1=g.coverage(batch_set, g.hyperG_1, g.hyperGT_1);
+				// double lower = sqr(sqrt(1.0*coverage_1 + 2. * a1 / 9.) - sqrt(a1 / 2.)) - a1 / 18;
+				double lower = sqr(sqrt(1.0*influence + 2. * a1 / 9.) - sqrt(a1 / 2.)) - a1 / 18;
 				double upper = sqr(sqrt(influence / factor + a2 / 2.) + sqrt(a2 / 2.));				
 
 				double ratio = lower / upper;
@@ -73,7 +73,9 @@ class ASM
 						g.seedSet.push_back(it); 
 						// std::cout<<it<<", ";
 					}
+					// std::cout << std::endl;
 					g.realization(batch_set, active_node);
+					cout<<"sample RR sets: "<<sample<<endl;
 					return;
 				}
 				sample *= 2;
@@ -154,14 +156,14 @@ public:
 				double single_cost = 0.0;
 				for(auto seed:g.seedSet)	single_cost+=cost[seed];
 				cout << "SingleCost " << single_cost << endl;
-				
-				// ofstream out_seeds("../results/newseeds/ASTI_" + arg.dataset[k] + to_string(arg.eta) + arg.model + "_" + to_string(i) + ".txt", ios::out);
-				// assert((!out_seeds.fail()));
-				// for (auto node : g.seedSet)
-				// {
-				// 	out_seeds << node << endl;
-				// }
-				// out_seeds.close();
+				cout << g.seedSet.size() + " " + to_string((double)interval.count()) + " " + to_string(active_node) + " " + to_string(single_cost) << endl;
+				ofstream out_seeds("results/ASTI_" + arg.dataset[k] + "_" + to_string(arg.eta) + "_" + to_string(arg.epsilon) + "_" + to_string(i) + ".txt", ios::out);
+				assert((!out_seeds.fail()));
+				for (auto node : g.seedSet)
+				{
+					out_seeds << node << endl;
+				}
+				out_seeds.close();
             }            
 			
 			cout << "RunningTime(s) " << total_time / arg.time << endl;			

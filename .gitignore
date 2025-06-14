@@ -36,3 +36,8 @@ LICENSE
 *.exe
 *.out
 *.app
+
+log*/
+*results*/
+.vscode/
+*.sh

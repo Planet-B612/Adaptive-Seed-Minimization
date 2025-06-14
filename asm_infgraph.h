@@ -210,10 +210,11 @@ public:
         }        
 		unsigned int counter = 0;
 		auto cur_RR_num= hyperGT.size();
-		while (counter < R)
+		while (counter < R - cur_RR_num)
 		{
 			BuildTRR(cur_RR_num+counter, root_num, prob, hyperG, hyperGT);
-			BuildTRR(cur_RR_num+counter, root_num, prob, hyperG_1, hyperGT_1);
+			//no need when batch is 1
+			// BuildTRR(cur_RR_num+counter, root_num, prob, hyperG_1, hyperGT_1);
 			++counter;
 		}
 		numRRsets = hyperGT.size();
