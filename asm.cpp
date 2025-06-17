@@ -140,7 +140,7 @@ void Run(int argn, char **argv)
 			duration<double> interval = duration_cast<duration<double>>(endTime - startTime);
             auto avg_runtime= (double)interval.count()/arg.time;
             // result_bk<<"("<<arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
-            cout<<"("<<arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
+            cout<<"("<< "eps= " << arg.epsilon <<", batch= "<< arg.batch<< ", dataset= "<< arg.dataset[k]<<", eta = "<<arg.eta<<", Alg = ASTI"<<", avg_cost = "<<avg_cost<<", avg_runtime="<<avg_runtime<<", memory = "<<memory<<", spread = "<<avg_spread<<")"<<endl;
         }
     }
 }

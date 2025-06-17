@@ -75,7 +75,7 @@ class ASM
 					}
 					// std::cout << std::endl;
 					g.realization(batch_set, active_node);
-					cout<<"sample RR sets: "<<sample<<endl;
+					// cout<<"sample RR sets: "<<sample<<endl;
 					return;
 				}
 				sample *= 2;
@@ -96,7 +96,7 @@ public:
         static pair<double, double> SeedMinimize(InfGraph &g, const Argument &arg, const vector<float> cost, int k)
         {                  			            					
 			
-			cout << "expected spread: " << arg.eta << endl;
+			// cout << "expected spread: " << arg.eta << endl;
 
 			double total_spread = 0;			
 			double total_time = 0;
@@ -135,7 +135,7 @@ public:
 					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost);
 					auto now = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> elapsed = now - start;
-					cout<<"round "<<cnt <<","<<left_eta<<","<< elapsed.count() << "s"<<endl;
+					// cout<<"round "<<cnt <<","<<left_eta<<","<< elapsed.count() << "s"<<endl;
 					cnt++;
 				}
 				
@@ -149,9 +149,9 @@ public:
 
 				for(auto seed:g.seedSet)	total_cost+=cost[seed];
 
-				cout << "SingleSeed " << g.seedSet.size() << endl;
-				cout << "SingleRuntime " << (double)interval.count() << endl;		
-				cout << "SingleSpread " << active_node << endl;
+				cout << "SingleSeed " << g.seedSet.size() <<" ";
+				cout << "SingleRuntime " << (double)interval.count() <<" ";	
+				cout << "SingleSpread " << active_node <<" ";
 				
 				double single_cost = 0.0;
 				for(auto seed:g.seedSet)	single_cost+=cost[seed];
