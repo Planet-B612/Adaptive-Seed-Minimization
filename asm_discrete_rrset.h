@@ -106,7 +106,7 @@ void realization(vector<int> batch_set, unsigned int & active_node)
 	// for (unsigned int i = 0; i < hyperG_1.size(); ++i)hyperG_1[i].clear();
 	// for (unsigned int i = 0; i < hyperGT_1.size(); ++i)vector<int>().swap(hyperGT_1[i]);
 	// hyperGT_1.clear();
-	numRRsets=0;
+	// numRRsets=0;
 }
 
 void RandBatch(int batch)

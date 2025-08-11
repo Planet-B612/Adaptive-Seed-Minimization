@@ -6,7 +6,7 @@
 #define c 2*(exp(1)-2)
 
 using namespace std::chrono;
-
+int cnt = 1; // to count the number of rounds in each time.
 class Math{
     public:
         static double log2(int n){
@@ -31,9 +31,9 @@ class ASM
     private:               
 		static unsigned int active_node; //this is to record the number of the active node.
 		static unsigned int left_eta;
-		static unsigned int left_n;				
+		static unsigned int left_n;	
 
-		static void AdaptiveSelect(InfGraph &g, const Argument & arg, const double factor, const double epsilon, const double delta, const vector<float> cost)
+		static void AdaptiveSelect(InfGraph &g, const Argument & arg, const double factor, const double epsilon, const double delta, const vector<float> cost, double &build_time)
 		{			
 			const unsigned int batch = arg.batch;
 			const double alpha = sqrt(log(6.0 / delta));
@@ -53,7 +53,11 @@ class ASM
 			
 			while (sample < theta_max)
 			{
+				high_resolution_clock::time_point startTime = high_resolution_clock::now();		
 				g.build_TRR_r(sample, left_n / left_eta, 1.*(left_n % left_eta) / left_eta);
+				auto now = std::chrono::high_resolution_clock::now();
+				build_time += std::chrono::duration<double>(now - startTime).count();
+
 				batch_set.clear();
 				//calculate the upper bound here				
 				// double influence = g.build_seedset(batch, batch_set);  //we need to be careful here.
@@ -74,12 +78,14 @@ class ASM
 						// std::cout<<it<<", ";
 					}
 					// std::cout << std::endl;
+					// auto memory = getProcMemory();
 					g.realization(batch_set, active_node);
-					// cout<<"sample RR sets: "<<sample<<endl;
+					// cout<<"round "<< cnt <<","<<left_eta<<","<< elapsed.count() << "s, "<<"MEM" << memory <<" sample RR sets: "<<sample<<endl;
+					// cnt++;
 					return;
 				}
 				sample *= 2;
-				//cout<<"The number of sample is "<<sample<<endl;
+
 			}
 			batch_set.clear();
 			// g.build_seedset(batch, batch_set);
@@ -93,18 +99,18 @@ class ASM
 		}
 
 public:
+
         static pair<double, double> SeedMinimize(InfGraph &g, const Argument &arg, const vector<float> cost, int k)
         {                  			            					
-			
-			// cout << "expected spread: " << arg.eta << endl;
 
 			double total_spread = 0;			
 			double total_time = 0;
+			double total_sample = 0;
 						
 			double seed_num = 0;			
 			const double factor = 1. - pow(1. - 1. / arg.batch, arg.batch);
 			double total_cost=0.0;
-			for (int i = 0; i < arg.time; i++)
+			for (int i = arg.start_time; i < arg.time; i++)
             {				
 				//the preparation work before each time.						
 				g.load_possible_world(to_string(i), arg);
@@ -114,7 +120,7 @@ public:
 				int cnt = 0;		
 				left_eta = arg.eta; //change the left_node as the quota
 				left_n = g.n;
-				
+				double build_time = 0.0;	
 				high_resolution_clock::time_point startTime = high_resolution_clock::now();				
 
 				while (active_node <  arg.eta )  //set the eta as 1;
@@ -131,12 +137,14 @@ public:
 					// }
 					g.numRRsets = 0;  // added
 					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta);														
-					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);				
-					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost);
+					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);	
+				
+					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost, build_time);
 					auto now = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<double> elapsed = now - start;
 					// cout<<"round "<<cnt <<","<<left_eta<<","<< elapsed.count() << "s"<<endl;
 					cnt++;
+					total_sample += g.numRRsets;
 				}
 				
 				high_resolution_clock::time_point endTime = high_resolution_clock::now();
@@ -144,33 +152,32 @@ public:
 
 				total_time += (double)interval.count();
 				seed_num += g.seedSet.size();
-			
 				total_spread += active_node;
-
 				for(auto seed:g.seedSet)	total_cost+=cost[seed];
 
 				cout << "SingleSeed " << g.seedSet.size() <<" ";
+				cout << "Singlebuildtime " << build_time <<" ";
 				cout << "SingleRuntime " << (double)interval.count() <<" ";	
 				cout << "SingleSpread " << active_node <<" ";
+				cout << "SingleRRsets Toal " << total_sample <<" ";
 				
 				double single_cost = 0.0;
 				for(auto seed:g.seedSet)	single_cost+=cost[seed];
 				cout << "SingleCost " << single_cost << endl;
 				cout << g.seedSet.size() + " " + to_string((double)interval.count()) + " " + to_string(active_node) + " " + to_string(single_cost) << endl;
-				ofstream out_seeds("results/ASTI_" + arg.dataset[k] + "_" + to_string(arg.eta) + "_" + to_string(arg.epsilon) + "_" + to_string(i) + ".txt", ios::out);
-				assert((!out_seeds.fail()));
-				for (auto node : g.seedSet)
-				{
-					out_seeds << node << endl;
-				}
-				out_seeds.close();
+				// ofstream out_seeds("results/ASTI_" + arg.dataset[k] + "_" + to_string(arg.eta) + "_" + to_string(arg.epsilon) + "_" + to_string(i) + ".txt", ios::out);
+				// assert((!out_seeds.fail()));
+				// for (auto node : g.seedSet)
+				// {
+				// 	out_seeds << node << endl;
+				// }
+				// out_seeds.close();
             }            
 			
 			cout << "RunningTime(s) " << total_time / arg.time << endl;			
             disp_mem_usage();			
 			cout << "Average_Spread " << total_spread / arg.time << endl;
 			cout << "Average_Seed_Num" << seed_num / arg.time << endl;
-			//return 1.0*seed_num/arg.time;
 			return make_pair(1.0*total_cost/arg.time, 1.0*total_spread / arg.time);
         }
 };

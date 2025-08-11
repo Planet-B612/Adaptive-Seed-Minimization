@@ -12,9 +12,10 @@ public:
     string model="IC";    
 	unsigned int batch=1;
 	string seedfile;
-    int time=1;  //this is the number of times needed to measure the result.	
+    int time=10;  //this is the number of times needed to measure the result.	
+    int start_time=0; // the time to start the algorithm, default is 0.	
     //std::vector<string> dataset;
-    bool Rnd_cost=true;
+    int cost_type=0; // 0 for 0.01 degree, 1 for random cost, 2 for uniform cost
     //vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
     // vector<string> dataset={"facebook", "sample", "nethept", "epinions", "dblp", "livejournal", "twitter", "orkut", "youtube", "pokec"};
     vector<string> dataset = {"facebook", "dblp", "flickr","nethept","epinions", "youtube", "pokec", "orkut", "livejournal", "friendster","DBLP_sym","Youtube_sym","twitter","citeseer","Flickr_sym","wikitalk","wikitalkar"};
@@ -74,8 +75,12 @@ void Run(int argn, char **argv)
 			arg.seedfile = argv[i + 1];
 		if (argv[i] == string("-batch"))
 			arg.batch = atoi(argv[i + 1]);
+        if (argv[i] == string("-start_time"))
+			arg.start_time = atoi(argv[i + 1]);
 		if (argv[i] == string("-time"))
 			arg.time = atoi(argv[i + 1]);
+        if (argv[i] == string("-cost_type"))
+			arg.cost_type = atoi(argv[i + 1]);
     }
     ASSERT(arg.model == "IC" || arg.model == "LT");
     // for(auto k:arg.dataset_No)
@@ -103,32 +108,52 @@ void Run(int argn, char **argv)
 
             vector<float> cost(g.n);
             string cost_file;
-            // if(arg.Rnd_cost)
+            if(arg.cost_type==0)
             {
                 cost_file="/data/gongyao/graphInfo/"+arg.dataset[k]+"_cost_Rand.txt";
+                std::ifstream inFile;
+                inFile.open(cost_file);
+                if(!inFile)
+                {
+                    cout<<"cannot open the cost file at "<<cost_file<<endl;
+                    exit(1);
+                }
+                float nodeCost;
+                inFile.seekg(0, std::ios_base::beg);
+                for(size_t i=0;i<g.n;i++)
+                {
+                    inFile>>nodeCost;
+                    cost[i]=nodeCost;
+                }
+                inFile.close();
             }
-            // else
-            // {
-            //     cost_file=graph_path+arg.dataset[k]+"_cost_001DEG.txt";
-            // }
-            std::ifstream inFile;
-            inFile.open(cost_file);
-            if(!inFile)
+            else if(arg.cost_type==1)
             {
-                cout<<"cannot open the cost file at "<<cost_file<<endl;
-                exit(1);
+                cost_file="/data/gongyao/graphInfo/"+arg.dataset[k]+"_cost_001DEG.txt";
+                cout << cost_file << endl;
+                std::ifstream inFile;
+                inFile.open(cost_file);
+                if(!inFile)
+                {
+                    cout<<"cannot open the cost file at "<<cost_file<<endl;
+                    exit(1);
+                }
+                float nodeCost;
+                inFile.seekg(0, std::ios_base::beg);
+                for(size_t i=0;i<g.n;i++)
+                {
+                    inFile>>nodeCost;
+                    cost[i]=nodeCost;
+                }
+                inFile.close();
             }
-            float nodeCost;
-            //double c_min=0.0;
-            inFile.seekg(0, std::ios_base::beg);
-            for(size_t i=0;i<g.n;i++)
-            {
-                inFile>>nodeCost;
-                cost[i]=nodeCost;
-                //c_min=min(c_min, nodeCost);
+            else{
+                for(size_t i=0;i<g.n;i++)
+                {
+                    cost[i]=1.0;
+                }
             }
-            //cout<<"The min cost is: "<<c_min<<endl;
-            inFile.close();
+
 
             high_resolution_clock::time_point startTime = high_resolution_clock::now();
             pair<double, double> ASM_res;
