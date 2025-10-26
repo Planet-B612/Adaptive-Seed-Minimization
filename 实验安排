@@ -1,0 +1,15 @@
+epinions在LT model的degree-based cost下，建议选取batch=1，eps=0.7，eta建议在5000到10000.这样，在5000的时候可能只有1点几倍的speedup，10000的时候有20倍的speedup。
+epinions选取eta=2000的时候，我们的算法相比于ASTI也有10倍左右的speedup。因此，可以选2000. 
+dblp batch=1 eta=2000的时候，花了60000秒。我们的加速比有63倍。eta=10000的时候，用时360000秒。
+youtube batch=1 eta=2000的时候，花了140000秒。
+
+epinions batch=2, eta=3000, time=53(pw_id=0)
+dblp batch=4 eta=3000, time=7500s. batch=2, eta=3000, time=21000s., batch=2 eta=5000, time=35000s. batch=2, eta=1000, time=7000s.
+youtube batch=4 eta=3000, time=20000s. batch=2, eta=3000, time=56000s. batch=2 eta=5000, time=85000s.
+
+整体的话可以1000到3000
+
+
+epinions, batch=1
+dblp, batch=2
+youtube, batch=2

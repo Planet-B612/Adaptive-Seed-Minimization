@@ -44,12 +44,18 @@ class ASM
 
 			const double i_max = ceil(log(left_n / arg.batch / epsilon / epsilon) / log(2)) + 1;
 
-			const double a1 = log(3 * i_max / delta) + Math::logcnk(left_n, batch);			
+			const double a1 = log(3 * i_max / delta) + Math::logcnk(left_n, batch);
 			const double a2 = log(3 * i_max / delta);
 
 			double sample = theta_o;
 
 			vector<int>batch_set;
+			
+			std::ofstream result;
+			string file_name = "round_" + std::to_string(arg.dataset_No) + "_" + std::to_string(static_cast<int>(arg.eta))+ "_" + std::to_string(arg.batch) + "_" + std::to_string(arg.epsilon) + ".txt"; 
+			result.open(file_name, ios::app);
+			assert(!result.fail());
+			auto start = std::chrono::high_resolution_clock::now();	
 			
 			while (sample < theta_max)
 			{
@@ -78,10 +84,14 @@ class ASM
 						// std::cout<<it<<", ";
 					}
 					// std::cout << std::endl;
-					// auto memory = getProcMemory();
+					auto memory = getProcMemory();
 					g.realization(batch_set, active_node);
-					// cout<<"round "<< cnt <<","<<left_eta<<","<< elapsed.count() << "s, "<<"MEM" << memory <<" sample RR sets: "<<sample<<endl;
-					// cnt++;
+					result<<"round "<< cnt <<", eta = "<<left_eta<<","<< "mem = " << memory <<" # RR sets: "<<sample<<endl;
+					cnt++;
+					
+					auto now = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<double> elapsed = now - start;
+					// result<<"round "<<cnt <<", "<<left_eta<<", "<< sample <<", "<< elapsed.count() << "s"<<endl;
 					return;
 				}
 				sample *= 2;
@@ -94,8 +104,12 @@ class ASM
 			{
 				g.seedSet.push_back(it); 
 				// std::cout<<it<<", ";
-			}
+			}			
+			auto memory = getProcMemory();
 			g.realization(batch_set, active_node);
+			auto now = std::chrono::high_resolution_clock::now();
+			std::chrono::duration<double> elapsed = now - start;
+			result<<"round "<< cnt <<", eta = "<<left_eta<<","<< "mem = " << memory <<" # RR sets: "<<sample<<endl;
 		}
 
 public:
@@ -110,6 +124,7 @@ public:
 			double seed_num = 0;			
 			const double factor = 1. - pow(1. - 1. / arg.batch, arg.batch);
 			double total_cost=0.0;
+
 			for (int i = arg.start_time; i < arg.time; i++)
             {				
 				//the preparation work before each time.						
@@ -117,15 +132,14 @@ public:
 				// g.generate_possible_world(arg);
 				g.init_hyper_graph();				
 				active_node = 0;
-				int cnt = 0;		
+				// int cnt = 0;		
 				left_eta = arg.eta; //change the left_node as the quota
 				left_n = g.n;
 				double build_time = 0.0;	
 				high_resolution_clock::time_point startTime = high_resolution_clock::now();				
 
 				while (active_node <  arg.eta )  //set the eta as 1;
- 				{				
-					auto start = std::chrono::high_resolution_clock::now();			
+ 				{						
 					left_eta = arg.eta - active_node;
 					left_n = g.n - active_node;
 					//cout<<"Left eta is "<<left_eta<<endl;
@@ -136,15 +150,13 @@ public:
 					// 	break;
 					// }
 					g.numRRsets = 0;  // added
-					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta);														
+					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta*arg.delta_amp);														
 					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);	
 				
 					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost, build_time);
-					auto now = std::chrono::high_resolution_clock::now();
-					std::chrono::duration<double> elapsed = now - start;
-					// cout<<"round "<<cnt <<","<<left_eta<<","<< elapsed.count() << "s"<<endl;
+					// cout<<"round "<<cnt <<", "<<left_eta<<", "<< elapsed.count() << "s"<<endl;
 					cnt++;
-					total_sample += g.numRRsets;
+					total_sample += g.numRRsets;	
 				}
 				
 				high_resolution_clock::time_point endTime = high_resolution_clock::now();
@@ -159,7 +171,8 @@ public:
 				cout << "Singlebuildtime " << build_time <<" ";
 				cout << "SingleRuntime " << (double)interval.count() <<" ";	
 				cout << "SingleSpread " << active_node <<" ";
-				cout << "SingleRRsets Toal " << total_sample <<" ";
+				cout << "SingleRRsets Toal " << total_sample <<" ";		
+            	disp_mem_usage();			
 				
 				double single_cost = 0.0;
 				for(auto seed:g.seedSet)	single_cost+=cost[seed];
@@ -177,7 +190,7 @@ public:
 			cout << "RunningTime(s) " << total_time / arg.time << endl;			
             disp_mem_usage();			
 			cout << "Average_Spread " << total_spread / arg.time << endl;
-			cout << "Average_Seed_Num" << seed_num / arg.time << endl;
+			cout << "Average_Seed_Num " << seed_num / arg.time << endl;
 			return make_pair(1.0*total_cost/arg.time, 1.0*total_spread / arg.time);
         }
 };

@@ -126,7 +126,15 @@ public:
 		// int index2 = ++index1;
 		// while (arg.dataset[index2] != '/')index2++;
 		//string file_name = arg.dataset + arg.dataset.substr(index1, index2 - index1) + "_" + index;
-		string pw_path="/data/gongyao/realization/" + arg.dataset[arg.dataset_No] + "_pw_ic" + index + ".txt";
+		string pw_path;
+		if(influModel==IC)
+		{
+			pw_path="/data/fc/realization/" + arg.dataset[arg.dataset_No] + "_pw_ic" + index + ".txt";
+		}
+		else
+		{
+			pw_path="/data/fc/realization/" + arg.dataset[arg.dataset_No] + "_pw_lt" + index + ".txt";
+		}
 		cout << pw_path <<endl;
 		// pw_path+="_pw_ic.txt";
 		ifstream load_pw;

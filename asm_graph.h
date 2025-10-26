@@ -61,7 +61,7 @@ public:
         ifstream inFile((graph_file).c_str());
         if(!inFile)
 	    {
-            cout<<"cannot open roots file."<<endl;
+            cout<<"cannot open graph file @ "<<graph_file<<endl;
             exit(1);
 	    }
         inFile.seekg(0, std::ios_base::beg);
@@ -91,6 +91,36 @@ public:
             }
             //probT[i]=float(1.0/gT[i].size());
         }
+    }
+    
+    void myReadProbGraph()
+    {
+        cout<<"reading graph"<<endl;
+        ifstream inFile((graph_file).c_str());
+        if(!inFile)
+	    {
+            cout<<"cannot open graph file @ "<<graph_file<<endl;
+            exit(1);
+	    }
+        inFile.seekg(0, std::ios_base::beg);
+        uint32_t u,v;
+        double p;
+        inFile>>n>>m;
+        gT = vector<vector<uint32_t>>(n, vector<uint32_t>());		
+		probT = vector<vector<double>>(n, vector<double>());
+        cout<<"begin reading graph"<<endl;
+        while(!inFile.eof())
+        {
+            inFile>>u>>v>>p;
+            gT[v].push_back(u);
+            probT[v].push_back(p);
+            if((folder=="nethept")||(folder=="epinions"))
+            {
+                inFile.ignore(10000, '\n');  // For well-formed dataset, this line may ignore the next line which is useful.
+            }
+        }
+        inFile.close();
+        cout<<"reading graph finished"<<endl;
     }
 
     void readGraph()
@@ -140,7 +170,8 @@ public:
     {
         //readNM();		
 
-        my_readGraph();       
+        my_readGraph();    
+        // myReadProbGraph();   
     }
 };
 
