@@ -73,3 +73,4 @@ round 19, eta = 992131,mem = 26734 # RR sets: 61957.1
 round 21, eta = 992127,mem = 26794 # RR sets: 61957.1
 round 23, eta = 964006,mem = 26853 # RR sets: 61914.4
 round 25, eta = 964002,mem = 26902 # RR sets: 61914.4
+round 27, eta = 963981,mem = 26902 # RR sets: 30957.2

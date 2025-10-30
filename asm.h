@@ -150,7 +150,7 @@ public:
 					// 	break;
 					// }
 					g.numRRsets = 0;  // added
-					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta*arg.delta_amp);														
+					const double delta = arg.epsilon/(100.0*(1-1.0/e)*(1-arg.epsilon)*left_eta*arg.delta_amp);	
 					const double epsilon_prime = 99.0*arg.epsilon/(100.0-arg.epsilon);	
 				
 					AdaptiveSelect(g, arg, factor, epsilon_prime, delta, cost, build_time);
